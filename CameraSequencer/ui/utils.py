@@ -12,7 +12,7 @@ def get_maya_window():
     :return: Maya's main window
     :rtype: QtGui.QWidget
     """
-    for widget in QtWidgets.QApplication.instance().topLevelWidgets():
+    for widget in QtWidgets.QApplication.topLevelWidgets():
 
         if widget.objectName() == 'MayaWindow':
             return widget
