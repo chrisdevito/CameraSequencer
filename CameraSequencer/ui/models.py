@@ -1,6 +1,7 @@
 import logging
+
 try:
-    from maya import (cmds, OpenMaya)
+    from maya import cmds, OpenMaya
 except ImportError:
     pass
 
@@ -11,8 +12,8 @@ class Camera(object):
     """
     Maya Camera object.
     """
-    def __init__(self, camera="perspShape"):
 
+    def __init__(self, camera="perspShape"):
         if cmds.nodeType(camera) == "transform":
             self.transform = camera
             self.shape = self.getShape(camera)
@@ -29,7 +30,6 @@ class Camera(object):
         return "<%s instance of %s>" % (self.__class__.__name__, self.shape)
 
     def __mobject__(self):
-
         msel = OpenMaya.MSelectionList()
         msel.add(self.transform, 0)
 
@@ -39,10 +39,10 @@ class Camera(object):
         return mobject
 
     def getShape(self, transform):
-
         try:
-            shape = cmds.listRelatives(
-                transform, children=True, type="camera")[0]
+            shape = cmds.listRelatives(transform, children=True, type="camera")[
+                0
+            ]
 
             return shape
 
@@ -65,25 +65,28 @@ class Camera(object):
 
     @property
     def filmback(self):
-        return [cmds.getAttr(self.name + ".horizontalFilmAperture"),
-                cmds.getAttr(self.name + ".verticalFilmAperture")]
+        return [
+            cmds.getAttr(self.name + ".horizontalFilmAperture"),
+            cmds.getAttr(self.name + ".verticalFilmAperture"),
+        ]
 
     @property
     def translation(self):
         return cmds.xform(
-            self.transform, query=True, worldSpace=True, translation=True)
+            self.transform, query=True, worldSpace=True, translation=True
+        )
 
     @property
     def rotation(self):
         return cmds.xform(
-            self.transform, query=True, worldSpace=True, rotation=True)
+            self.transform, query=True, worldSpace=True, rotation=True
+        )
 
     @property
     def image_path(self):
         img_planes = cmds.listConnections(self.shape, type="imagePlane")
 
         if img_planes:
-            img_planeshape = cmds.listRelatives(
-                img_planes[0], children=True)[0]
+            img_planeshape = cmds.listRelatives(img_planes[0], children=True)[0]
 
             return cmds.getAttr(img_planeshape + ".imageName")

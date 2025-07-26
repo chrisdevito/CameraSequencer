@@ -3,11 +3,11 @@
 
 import os
 import logging
-from .widgets import (CameraList, ObjectItem, LineEditWidget)
-from .models import Camera
+from CameraSequencer.ui.widgets import CameraList, ObjectItem, LineEditWidget
+from CameraSequencer.ui.models import Camera
 
 try:
-    from maya import (cmds, OpenMaya)
+    from maya import cmds, OpenMaya
 except ImportError:
     pass
 
@@ -15,15 +15,15 @@ from functools import partial
 from collections import defaultdict
 
 try:
-    from ..packages.Qt import QtWidgets, QtCore
+    from CameraSequencer.packages.Qt import QtWidgets, QtCore
 except ImportError:
     pass
 
-from .. import api
+from CameraSequencer import api
 
 this_package = os.path.abspath(os.path.dirname(__file__))
 this_path = partial(os.path.join, this_package)
-imgs_path = os.environ.get('M_TASK_PATH', None)
+imgs_path = os.environ.get("M_TASK_PATH", None)
 
 log = logging.getLogger("CameraSequencer")
 
@@ -32,8 +32,8 @@ class UI(QtWidgets.QDialog):
     """
     :class:`UI` inherits a QDialog and customizes it.
     """
-    def __init__(self, parent=None):
 
+    def __init__(self, parent=None):
         super(UI, self).__init__(parent)
 
         # Set window
@@ -43,12 +43,6 @@ class UI(QtWidgets.QDialog):
         # Grab stylesheet
         with open(this_path("style.css")) as f:
             self.setStyleSheet(f.read())
-
-        # Center to frame.
-        qr = self.frameGeometry()
-        cp = QtWidgets.QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
 
         # Our main layout
         self.layout = QtWidgets.QVBoxLayout()
@@ -109,14 +103,17 @@ class UI(QtWidgets.QDialog):
         self.start_frame_spnbox.setMinimum(-999999)
         self.start_frame_spnbox.setMaximum(999999)
         self.start_frame_spnbox.setValue(
-            int(cmds.playbackOptions(query=True, minTime=True)))
+            int(cmds.playbackOptions(query=True, minTime=True))
+        )
         self.start_frame_spnbox.setAlignment(QtCore.Qt.AlignRight)
 
         self.start_frame_spnbox.setMinimumWidth(100)
         self.start_spacer = QtWidgets.QSpacerItem(
-            100, 25,
+            100,
+            25,
             QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Minimum)
+            QtWidgets.QSizePolicy.Minimum,
+        )
 
         self.line = QtWidgets.QFrame()
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
@@ -177,15 +174,19 @@ class UI(QtWidgets.QDialog):
         :rtype: NoneType
         """
         self.up_button.setToolTip("Move all selected cameras up by one index.")
-        self.down_button.setToolTip("Move all selected cameras"
-                                    " down by one index.")
-        self.remove_button.setToolTip("Remove all selected"
-                                      " cameras from list.")
+        self.down_button.setToolTip(
+            "Move all selected cameras" " down by one index."
+        )
+        self.remove_button.setToolTip(
+            "Remove all selected" " cameras from list."
+        )
         self.add_button.setToolTip("Add all selected camera from list.")
         self.seq_button.setToolTip("Create a sequence camera.")
-        self.cam_list.setToolTip("Cameras added to the list"
-                                 " are in order\n of the camera"
-                                 " to be sequenced.")
+        self.cam_list.setToolTip(
+            "Cameras added to the list"
+            " are in order\n of the camera"
+            " to be sequenced."
+        )
 
     def browse_dirs(self):
         """
@@ -200,15 +201,13 @@ class UI(QtWidgets.QDialog):
             start_path = imgs_path + os.sep + "REFERENCE"
 
         save_path = QtWidgets.QFileDialog.getSaveFileName(
-            self,
-            'Path to copy images',
-            start_path)[0]
+            self, "Path to copy images", start_path
+        )[0]
 
         if save_path:
             filename = os.path.basename(save_path).split(".")[0]
             full_path = os.path.dirname(save_path) + os.sep + filename
-            self.dir_path.setText(
-                full_path + ".<frame>.<ext>")
+            self.dir_path.setText(full_path + ".<frame>.<ext>")
 
     def clear_lists(self):
         """
@@ -234,7 +233,6 @@ class UI(QtWidgets.QDialog):
         nodes = cmds.ls(selection=True)
 
         for node in nodes:
-
             if len(self.cam_list.findItems(node, QtCore.Qt.MatchExactly)):
                 log.info("%s already added to the list." % node)
                 continue
@@ -291,9 +289,8 @@ class UI(QtWidgets.QDialog):
         #         img_sequence=img_path)
 
         api.sequence_cameras(
-            camera_nodes,
-            start_frame=start_frame,
-            img_sequence=start_img_path)
+            camera_nodes, start_frame=start_frame, img_sequence=start_img_path
+        )
 
     def delete_obj_item(self, item):
         """
@@ -322,15 +319,13 @@ class UI(QtWidgets.QDialog):
         """
         try:
             for item in self.cam_list.selectedItems():
-                self.cam_list.takeItem(
-                    self.cam_list.indexFromItem(item).row())
+                self.cam_list.takeItem(self.cam_list.indexFromItem(item).row())
         except RuntimeError as e:
             if "Internal C++ object (ObjectItem) already deleted" in str(e):
                 pass
                 raise
 
     def rename_obj_item(self, item, old_name, new_name):
-
         try:
             item.rename(new_name)
 
@@ -350,11 +345,14 @@ class UI(QtWidgets.QDialog):
         """
         newIndexes = []
         lastIndex = self.cam_list.count() - 1
-        indexes = sorted([[self.cam_list.indexFromItem(item).row(), item]
-                          for item in self.cam_list.selectedItems()])
+        indexes = sorted(
+            [
+                [self.cam_list.indexFromItem(item).row(), item]
+                for item in self.cam_list.selectedItems()
+            ]
+        )
 
         for oldIndex, item in indexes:
-
             newIndex = oldIndex - 1
 
             if newIndex < 0:
@@ -382,11 +380,14 @@ class UI(QtWidgets.QDialog):
         newIndexes = []
         lastIndex = self.cam_list.count() - 1
         indexes = sorted(
-            [[self.cam_list.indexFromItem(item).row(), item]
-             for item in self.cam_list.selectedItems()], reverse=True)
+            [
+                [self.cam_list.indexFromItem(item).row(), item]
+                for item in self.cam_list.selectedItems()
+            ],
+            reverse=True,
+        )
 
         for oldIndex, item in indexes:
-
             newIndex = oldIndex + 1
 
             if newIndex > lastIndex:
@@ -408,9 +409,9 @@ class UI(QtWidgets.QDialog):
         super(UI, self).closeEvent(event)
 
     def keyPressEvent(self, event):
-        '''
+        """
         Override key focus issue.
-        '''
+        """
         if event.key() in (QtCore.Qt.Key.Key_Shift, QtCore.Qt.Key.Key_Control):
             event.accept()
         else:
@@ -418,7 +419,7 @@ class UI(QtWidgets.QDialog):
 
 
 class MayaHooks(QtCore.QObject):
-    '''Manage all Maya Message Callbacks (Hooks)'''
+    """Manage all Maya Message Callbacks (Hooks)"""
 
     before_scene_changed = QtCore.Signal()
     scene_changed = QtCore.Signal()
@@ -437,8 +438,7 @@ class MayaHooks(QtCore.QObject):
         ]
         for i, msg in enumerate(before_change_messages):
             callback_id = OpenMaya.MSceneMessage.addCallback(
-                msg,
-                self.emit_before_scene_changed
+                msg, self.emit_before_scene_changed
             )
             self.scene_callback_ids.append(callback_id)
 
@@ -452,7 +452,6 @@ class MayaHooks(QtCore.QObject):
         self.scene_selection_changed.emit()
 
     def add_named_changed_callback(self, node, callback):
-
         mobject = node.__mobject__()
 
         def maya_callback(mobject, old_name, data):
@@ -466,11 +465,9 @@ class MayaHooks(QtCore.QObject):
         self.callback_ids[node].append(callback_id)
 
     def add_about_to_delete_callback(self, node, callback):
-
         mobject = node.__mobject__()
 
         def maya_callback(depend_node, dg_modifier, data):
-
             callback_ids = self.callback_ids.pop(node, None)
             if callback_ids:
                 for callback_id in callback_ids:

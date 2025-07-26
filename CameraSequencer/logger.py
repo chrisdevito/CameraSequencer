@@ -16,8 +16,8 @@ def myLogger(debug=False):
     :return: logger
     :rtype: logger object
     """
-    LFMT = '%(asctime)-15s %(name)s [%(levelname)s] %(message)s'
-    DFMT = '%Y-%m-%d %H:%M:%S'
+    LFMT = "%(asctime)-15s %(name)s [%(levelname)s] %(message)s"
+    DFMT = "%Y-%m-%d %H:%M:%S"
     FMT = logging.Formatter(LFMT, DFMT)
     shandler = logging.StreamHandler()
     shandler.setFormatter(FMT)

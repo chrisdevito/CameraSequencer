@@ -1,6 +1,6 @@
 import time
 
-from ..packages.Qt import QtWidgets
+from CameraSequencer.packages.Qt import QtWidgets
 
 
 def get_maya_window():
@@ -13,11 +13,10 @@ def get_maya_window():
     :rtype: QtGui.QWidget
     """
     for widget in QtWidgets.QApplication.topLevelWidgets():
-
-        if widget.objectName() == 'MayaWindow':
+        if widget.objectName() == "MayaWindow":
             return widget
 
-    raise RuntimeError('Could not locate MayaWindow...')
+    raise RuntimeError("Could not locate MayaWindow...")
 
 
 def wait(delay=1):

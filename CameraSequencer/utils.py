@@ -4,7 +4,7 @@
 import signal
 import logging
 
-log = logging.getLogger('CameraSequencer')
+log = logging.getLogger("CameraSequencer")
 
 # This is so you can quit the app with a kill process
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -19,8 +19,7 @@ def show():
     :return: None
     :rtype: NoneType
     """
-    from .ui.ui import UI
-    from .ui import utils
+    from CameraSequencer.ui import ui, utils
 
-    cam_win = UI(utils.get_maya_window())
+    cam_win = ui.UI(utils.get_maya_window())
     cam_win.show()

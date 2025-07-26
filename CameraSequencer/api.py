@@ -9,7 +9,7 @@ try:
 except ImportError:
     pass
 
-log = logging.getLogger('CameraSequencer')
+log = logging.getLogger("CameraSequencer")
 
 
 def sequence_images(cameras, start_frame=1001, img_sequence=None):
@@ -27,7 +27,7 @@ def sequence_images(cameras, start_frame=1001, img_sequence=None):
     """
     dir_path = os.path.dirname(img_sequence)
     images = [cam.image_path for cam in cameras]
-    print images
+    return images
 
 
 def sequence_cameras(cameras, start_frame=1001, img_sequence=None):
@@ -53,55 +53,65 @@ def sequence_cameras(cameras, start_frame=1001, img_sequence=None):
 
     cmds.setAttr("%s.fit" % imgPlane[1], 4)
     cmds.setAttr("%s.displayOnlyIfCurrent" % imgPlane[1], 1)
-    cmds.connectAttr("%s.horizontalFilmAperture" % uber_cam[1],
-                     "%s.sizeX" % imgPlane[1])
-    cmds.connectAttr("%s.verticalFilmAperture" % uber_cam[1],
-                     "%s.sizeY" % imgPlane[1])
+    cmds.connectAttr(
+        "%s.horizontalFilmAperture" % uber_cam[1], "%s.sizeX" % imgPlane[1]
+    )
+    cmds.connectAttr(
+        "%s.verticalFilmAperture" % uber_cam[1], "%s.sizeY" % imgPlane[1]
+    )
 
     for t, cam in enumerate(cameras):
-
-        frameNumber = (t + start_frame)
+        frameNumber = t + start_frame
         translation = cam.translation
         rotation = cam.rotation
 
         for i, direction in enumerate(["X", "Y", "Z"]):
+            cmds.setKeyframe(
+                uber_cam[0],
+                value=translation[i],
+                attribute="translate%s" % direction,
+                inTangentType="spline",
+                outTangentType="spline",
+                time=frameNumber,
+            )
 
-            cmds.setKeyframe(uber_cam[0],
-                             value=translation[i],
-                             attribute="translate%s" % direction,
-                             inTangentType="spline",
-                             outTangentType="spline",
-                             time=frameNumber)
+            cmds.setKeyframe(
+                uber_cam[0],
+                value=rotation[i],
+                attribute="rotate%s" % direction,
+                inTangentType="spline",
+                outTangentType="spline",
+                time=frameNumber,
+            )
 
-            cmds.setKeyframe(uber_cam[0],
-                             value=rotation[i],
-                             attribute="rotate%s" % direction,
-                             inTangentType="spline",
-                             outTangentType="spline",
-                             time=frameNumber)
-
-        cmds.setKeyframe(uber_cam[1],
-                         value=cam.focal_length,
-                         attribute="focalLength",
-                         inTangentType="spline",
-                         outTangentType="spline",
-                         time=frameNumber)
+        cmds.setKeyframe(
+            uber_cam[1],
+            value=cam.focal_length,
+            attribute="focalLength",
+            inTangentType="spline",
+            outTangentType="spline",
+            time=frameNumber,
+        )
 
         filmback = cam.filmback
 
-        cmds.setKeyframe(uber_cam[1],
-                         value=filmback[0],
-                         attribute="horizontalFilmAperture",
-                         inTangentType="spline",
-                         outTangentType="spline",
-                         time=frameNumber)
+        cmds.setKeyframe(
+            uber_cam[1],
+            value=filmback[0],
+            attribute="horizontalFilmAperture",
+            inTangentType="spline",
+            outTangentType="spline",
+            time=frameNumber,
+        )
 
-        cmds.setKeyframe(uber_cam[1],
-                         value=filmback[1],
-                         attribute="verticalFilmAperture",
-                         inTangentType="spline",
-                         outTangentType="spline",
-                         time=frameNumber)
+        cmds.setKeyframe(
+            uber_cam[1],
+            value=filmback[1],
+            attribute="verticalFilmAperture",
+            inTangentType="spline",
+            outTangentType="spline",
+            time=frameNumber,
+        )
 
     cmds.refresh()
 
